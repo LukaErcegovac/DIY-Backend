@@ -19,6 +19,7 @@ app.get("/:id", (req, res) => {
   res.send(objava);
 });
 
+//Dodavanje
 app.post("/", (req, res) => {
   console.log("Objava", req.body);
   res.send();
@@ -29,6 +30,7 @@ app.put("/comment/:id", (req, res) => {
   res.send();
 });
 
+//Promjena
 app.patch("/:id", (req, res) => {
   console.log("Description", req.params.id, req.body);
   res.send();
