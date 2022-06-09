@@ -1,18 +1,18 @@
 export let users = [
   {
-    id: 0,
+    userId: 0,
     email: "markof@gmail.com",
     name: "Marko Ferenci",
     password: "1234",
   },
   {
-    id: 1,
+    userId: 1,
     email: "teof@gmail.com",
     name: "Teo Frankovci",
     password: "2345",
   },
   {
-    id: 2,
+    userId: 2,
     email: "lorisg@gmail.com",
     name: "Loris Galic",
     password: "3456",
@@ -28,12 +28,12 @@ export let data = [
     likes: 25,
     comments: [
       {
-        id: 0,
+        commentId: 0,
         comment: "Ok",
         commentedBy: "Teo Frankovci",
       },
       {
-        id: 1,
+        commentId: 1,
         comment: "Super",
         commentedBy: "Loris Galic",
       },
@@ -47,12 +47,12 @@ export let data = [
     likes: 54,
     comments: [
       {
-        id: 0,
+        commentId: 2,
         comment: "Ok",
         commentedBy: "Marko Ferenci",
       },
       {
-        id: 1,
+        commentId: 3,
         comment: "Super",
         commentedBy: "Loris Galic",
       },
@@ -66,12 +66,12 @@ export let data = [
     likes: 25,
     comments: [
       {
-        id: 0,
+        commentId: 4,
         comment: "Ok",
         commentedBy: "Teo Frankovci",
       },
       {
-        id: 1,
+        commentId: 5,
         comment: "Super",
         commentedBy: "Marko Ferenci",
       },
