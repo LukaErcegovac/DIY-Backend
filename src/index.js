@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import mongo from "mongodb";
@@ -21,55 +23,42 @@ app.get("/", async (req, res) => {
   res.send(resaults);
 });
 
-<<<<<<< Updated upstream
 app.post("/", (req, res) => {
   console.log("Objava", req.body);
   res.send();
-=======
+});
+
 //Dodavanje
 //Registracija
-app.post("/:users", async (req, res) => {
-  let user = req.body;
-
+app.post("/users", async (req, res) => {
+  let data = req.body;
   let id;
 
   try {
-    id = await authentification.authenticateUser(user);
+    id = await autentification.registerUser(data);
   } catch (error) {
-    res.status(500).json({ error: error.massage });
+    res.status(500).json({ error: error.message });
   }
 
   res.json({ id: id });
-  res.json(user);
->>>>>>> Stashed changes
 });
 
 //Login
-app.post("/:auth", async (req, res) => {
-  let user = req.body;
+app.get("/secret", [authentification.verify], async (req, res) => {
+  res.status(200).send("Secret " + req.jwt.username);
+});
+app.post("/auth", async (req, res) => {
+  let data = req.body;
 
   try {
     let result = await autentification.authenticateUser(
-      user.username,
-      user.password
+      data.username,
+      data.password
     );
     res.json(result);
   } catch (error) {
-    res.status(403).json({ error: error.massage });
+    res.status(403).json({ error: error.message });
   }
-
-  res.json(user);
-});
-app.get("/:tajna", (req, res) => {
-  console.log(req.headers);
-
-<<<<<<< Updated upstream
-app.patch("/:id", (req, res) => {
-  console.log("Description", req.params.id, req.body);
-  res.send();
-=======
-  res.send({ massage: "Ovo je tajna" });
->>>>>>> Stashed changes
 });
 
 //Promjena

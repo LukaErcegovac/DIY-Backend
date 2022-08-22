@@ -1,7 +1,8 @@
 import mongo from "mongodb";
 import connect from "./db.js";
 import bcrypt from "bcrypt";
-import e from "express";
+import express from "express";
+import jwt from "jsonwebtoken";
 
 (async () => {
   let db = await connect();
@@ -12,45 +13,63 @@ export default {
   async registerUser(userData) {
     let db = await connect();
 
-    let doc = {
+    let pod = {
       username: userData.username,
-      password: await bcrypt.hash(userData.password, 8),
+      password: await bcrypt.hash(userData.password, 2),
       grad: userData.grad,
-      datum_rodjenja: userData.datum_rodjenja,
+      godina_rodjenja: userData.godina_rodjenja,
     };
 
     try {
-      let result = await db.collection("Users").insertOne(doc);
-      if (result && result.insertedId) {
-        return result.insertedId;
+      let resaults = await db.collection("Users").insertOne(pod);
+      if (resaults && resaults.insertedId) {
+        return resaults.insertedId;
       }
     } catch (error) {
       if (error.name == "MongoError" && error.code == 11000) {
-        throw new Error("Korisnik postoji!");
+        throw new Error("Korisnik postoji");
       }
     }
   },
 
   async authenticateUser(username, password) {
     let db = await connect();
-    let user = await db.collection("Users").findOne({ username: username });
+    let data = await db.collection("Users").findOne({ username: username });
 
     if (
-      user &&
-      user.password &&
-      (await bcrypt.compare(password, user.password))
+      data &&
+      data.password &&
+      (await bcrypt.compare(password, data.password))
     ) {
-      delete user.password;
-      let token = jwt.sign(user, "tajna", {
+      delete data.password;
+      let token = jwt.sign(data, process.env.jwt.secret, {
         algorithm: "HS512",
         expiresIn: "1 week",
       });
-      return {
-        token,
-        username: user.username,
-      };
+
+      return { token, username: data.username };
     } else {
-      throw new Error("Cannot authenticate!");
+      throw new Error("Nope");
+    }
+  },
+
+  verify(req, res, next) {
+    if (req.headers["authorization"]) {
+      try {
+        let authorization = req.headers["authorization"].split(" ");
+        if (authorization[0] !== "Bearer") {
+          return res.status(401).send();
+        } else {
+          let token = authorization[1];
+
+          req.jwt = jwt.verify(authorization[1], process.env.jwt_secret);
+          return next();
+        }
+      } catch (err) {
+        return res.status(401).send();
+      }
+    } else {
+      return res.status(401).send();
     }
   },
 };
