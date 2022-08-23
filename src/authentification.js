@@ -42,7 +42,7 @@ export default {
       (await bcrypt.compare(password, data.password))
     ) {
       delete data.password;
-      let token = jwt.sign(data, process.env.jwt.secret, {
+      let token = jwt.sign(data, process.env.jwt_secret, {
         algorithm: "HS512",
         expiresIn: "1 week",
       });
