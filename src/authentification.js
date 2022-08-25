@@ -49,7 +49,7 @@ export default {
 
       return { token, username: data.username };
     } else {
-      throw new Error("Nope");
+      throw new Error("Neispravan username ili ");
     }
   },
 

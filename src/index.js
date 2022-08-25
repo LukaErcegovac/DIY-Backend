@@ -35,7 +35,7 @@ app.post("/users", async (req, res) => {
   let id;
 
   try {
-    id = await autentification.registerUser(data);
+    id = await authentification.registerUser(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -45,13 +45,13 @@ app.post("/users", async (req, res) => {
 
 //Login
 app.get("/secret", [authentification.verify], async (req, res) => {
-  res.status(200).send("Secret " + req.jwt.username);
+  res.status(200).send("Nemoj nikom reci tajnu, shhh " + req.jwt.username);
 });
 app.post("/auth", async (req, res) => {
   let data = req.body;
 
   try {
-    let result = await autentification.authenticateUser(
+    let result = await authentification.authenticateUser(
       data.username,
       data.password
     );
