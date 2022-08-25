@@ -4,7 +4,6 @@ import express from "express";
 import cors from "cors";
 import mongo from "mongodb";
 import connect from "./db.js";
-import autentification from "./authentification.js";
 import authentification from "./authentification.js";
 
 const app = express();

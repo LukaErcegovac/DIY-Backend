@@ -1,8 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
 import mongo from "mongodb";
 
-const connection_string = "mongodb://localhost:27017";
-
-const client = new mongo.MongoClient(connection_string, {
+const client = new mongo.MongoClient(process.env.connection_string, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
