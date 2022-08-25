@@ -12,22 +12,53 @@ const port = 3000;
 app.use(express.json());
 app.use(cors());
 
-app.get("/", async (req, res) => {
+//Posts
+app.post("/posts", async (req, res) => {
+  let data = req.body;
+
+  let time = new Date().getTime();
+  data.postedAt = new Date(time).toISOString().substring(0, 10);
+
+  delete data._id;
+
+  if (!data.naslov || !data.opis || !data.materijali || !data.alati) {
+    res.json({
+      status: "Faild",
+      reason: "Incomplete post",
+    });
+    return;
+  }
+
+  let db = await connect();
+  let result = await db.collection("Posts").insertOne(data);
+
+  if (result && result.modifiedCount != 1) {
+    res.json(result);
+  } else {
+    res.json({ status: "Faild" });
+  }
+});
+
+app.get("/posts", [authentification.verify], async (req, res) => {
   let db = await connect();
 
   let cursor = await db.collection("Posts").find();
   let resaults = await cursor.toArray();
 
-  console.log(resaults);
   res.send(resaults);
 });
 
-app.post("/", (req, res) => {
-  console.log("Objava", req.body);
-  res.send();
+app.get("/posts/:id", async (req, res) => {
+  let id = req.params.id;
+  let db = await connect();
+
+  let results = await db
+    .collection("Posts")
+    .findOne({ _id: mongo.ObjectId(id) });
+
+  res.json(results);
 });
 
-//Dodavanje
 //Registracija
 app.post("/users", async (req, res) => {
   let data = req.body;
@@ -59,8 +90,6 @@ app.post("/auth", async (req, res) => {
     res.status(403).json({ error: error.message });
   }
 });
-
-//Promjena
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
