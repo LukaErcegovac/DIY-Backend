@@ -14,10 +14,11 @@ export default {
     let db = await connect();
 
     let pod = {
+      email: userData.email,
       username: userData.username,
       password: await bcrypt.hash(userData.password, 2),
       grad: userData.grad,
-      godina_rodjenja: userData.godina_rodjenja,
+      datum_rodjenja: userData.datum_rodjenja,
     };
 
     try {
@@ -32,9 +33,9 @@ export default {
     }
   },
 
-  async authenticateUser(username, password) {
+  async authenticateUser(email, password) {
     let db = await connect();
-    let data = await db.collection("Users").findOne({ username: username });
+    let data = await db.collection("Users").findOne({ email: email });
 
     if (
       data &&
@@ -47,9 +48,9 @@ export default {
         expiresIn: "1 week",
       });
 
-      return { token, username: data.username };
+      return { token, email: data.email, username: data.username };
     } else {
-      throw new Error("Neispravan username ili ");
+      throw new Error("Neispravan username ili password");
     }
   },
 
@@ -60,8 +61,6 @@ export default {
         if (authorization[0] !== "Bearer") {
           return res.status(401).send();
         } else {
-          let token = authorization[1];
-
           req.jwt = jwt.verify(authorization[1], process.env.jwt_secret);
           return next();
         }
