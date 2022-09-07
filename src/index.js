@@ -5,6 +5,7 @@ import cors from "cors";
 import mongo from "mongodb";
 import connect from "./db.js";
 import authentification from "./authentification.js";
+import mongoose from "mongoose";
 
 const app = express();
 const port = 3000;
@@ -13,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 //Posts
-app.post("/posts", [authentification.verify], async (req, res) => {
+app.post("/posts", async (req, res) => {
   let data = req.body;
 
   let time = new Date().getTime();
@@ -32,14 +33,14 @@ app.post("/posts", [authentification.verify], async (req, res) => {
   let db = await connect();
   let result = await db.collection("Posts").insertOne(data);
 
-  if (result && result.modifiedCount != 1) {
+  if (result) {
     res.json(result);
   } else {
     res.json({ status: "Faild" });
   }
 });
 
-app.get("/posts", [authentification.verify], async (req, res) => {
+app.get("/posts", async (req, res) => {
   let db = await connect();
 
   let cursor = await db.collection("Posts").find();
@@ -48,7 +49,7 @@ app.get("/posts", [authentification.verify], async (req, res) => {
   res.send(resaults);
 });
 
-app.get("/posts/:id", [authentification.verify], async (req, res) => {
+app.get("/posts/:id", async (req, res) => {
   let id = req.params.id;
   let db = await connect();
 
@@ -79,7 +80,7 @@ app.patch("/posts/:id", [authentification.verify], async (req, res) => {
   }
 });
 
-app.delete("/posts/:id", [authentification.verify], async (req, res) => {
+app.delete("/posts/:id", async (req, res) => {
   let data = req.body;
   let id = req.params.id;
 
@@ -156,13 +157,24 @@ app.post("/users", async (req, res) => {
   res.json({ id: id });
 });
 
-app.get("/users", [authentification.verify], async (req, res) => {
+app.get("/users", async (req, res) => {
   let db = await connect();
 
   let cursor = await db.collection("Users").find();
   let resaults = await cursor.toArray();
 
   res.send(resaults);
+});
+
+app.get("/users/:id", async (req, res) => {
+  let id = req.params.id;
+  let db = await connect();
+
+  let results = await db
+    .collection("Users")
+    .findOne({ _id: mongo.ObjectId(id) });
+
+  res.json(results);
 });
 
 //Login
