@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 //Posts
-app.post("/posts", async (req, res) => {
+app.post("/posts", [authentification.verify], async (req, res) => {
   let data = req.body;
 
   let time = new Date().getTime();
@@ -40,7 +40,7 @@ app.post("/posts", async (req, res) => {
   }
 });
 
-app.get("/posts", async (req, res) => {
+app.get("/posts", [authentification.verify], async (req, res) => {
   let db = await connect();
 
   let cursor = await db.collection("Posts").find();
@@ -49,7 +49,7 @@ app.get("/posts", async (req, res) => {
   res.send(resaults);
 });
 
-app.get("/posts/:id", async (req, res) => {
+app.get("/posts/:id", [authentification.verify], async (req, res) => {
   let id = req.params.id;
   let db = await connect();
 
@@ -80,7 +80,7 @@ app.patch("/posts/:id", [authentification.verify], async (req, res) => {
   }
 });
 
-app.delete("/posts/:id", async (req, res) => {
+app.delete("/posts/:id", [authentification.verify], async (req, res) => {
   let data = req.body;
   let id = req.params.id;
 
@@ -123,7 +123,7 @@ app.post("/posts/:id/comments", [authentification.verify], async (req, res) => {
 
   let result = await db.collection("Comments").insertOne(data);
 
-  if (result && result.modifiedCount != 1) {
+  if (result) {
     res.json(result);
   } else {
     res.json({ status: "Faild" });
@@ -157,7 +157,7 @@ app.post("/users", async (req, res) => {
   res.json({ id: id });
 });
 
-app.get("/users", async (req, res) => {
+app.get("/users", [authentification.verify], async (req, res) => {
   let db = await connect();
 
   let cursor = await db.collection("Users").find();
@@ -166,7 +166,7 @@ app.get("/users", async (req, res) => {
   res.send(resaults);
 });
 
-app.get("/users/:id", async (req, res) => {
+app.get("/users/:id", [authentification.verify], async (req, res) => {
   let id = req.params.id;
   let db = await connect();
 
