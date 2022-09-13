@@ -66,6 +66,8 @@ app.patch("/posts/:id", [authentification.verify], async (req, res) => {
 
   delete data._id;
 
+  console.log(data);
+
   let db = await connect();
 
   let result = await db
