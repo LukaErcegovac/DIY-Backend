@@ -19,6 +19,7 @@ export default {
       password: await bcrypt.hash(userData.password, 2),
       grad: userData.grad,
       datum_rodjenja: userData.datum_rodjenja,
+      follow: userData.follow,
     };
 
     try {

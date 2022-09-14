@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import express from "express";
+import express, { query } from "express";
 import cors from "cors";
 import mongo from "mongodb";
 import connect from "./db.js";
@@ -42,8 +42,33 @@ app.post("/posts", [authentification.verify], async (req, res) => {
 
 app.get("/posts", [authentification.verify], async (req, res) => {
   let db = await connect();
+  let query = req.query;
+  let selekcija = {};
 
-  let cursor = await db.collection("Posts").find();
+  if (query._any) {
+    let search = query._any;
+    let terms = search.split(" ");
+
+    let atributi = ["naslov", "postedBy"];
+
+    selekcija = {
+      $and: [],
+    };
+
+    terms.forEach((term) => {
+      let or = {
+        $or: [],
+      };
+
+      atributi.forEach((atribut) => {
+        or.$or.push({ [atribut]: new RegExp(term) });
+      });
+
+      selekcija.$and.push(or);
+    });
+  }
+
+  let cursor = await db.collection("Posts").find(selekcija);
   let resaults = await cursor.toArray();
 
   res.send(resaults);
@@ -149,7 +174,8 @@ app.get("/comments/:postId", [authentification.verify], async (req, res) => {
 app.post("/users", async (req, res) => {
   let data = req.body;
   let id;
-
+  data.follow = [];
+  console.log(data);
   try {
     id = await authentification.registerUser(data);
   } catch (error) {
@@ -176,7 +202,75 @@ app.get("/users/:id", [authentification.verify], async (req, res) => {
     .collection("Users")
     .findOne({ _id: mongo.ObjectId(id) });
 
+  results.follow.shift();
   res.json(results);
+});
+
+app.put("/following", [authentification.verify], async (req, res) => {
+  let updated = "";
+
+  let db = await connect();
+
+  let users = await db.collection("Users");
+
+  let user_querry = {
+    username: req.body.username,
+  };
+
+  let user_option = { projection: { _id: 0, follow: 1 } };
+
+  let userfollowing = await users.findOne(user_querry, user_option);
+
+  let new_user_querryId = { username: req.body.usertoFollow };
+  let new_user_optionId = { projection: { _id: 1 } };
+  let usertoFollowId = await users.findOne(
+    new_user_querryId,
+    new_user_optionId
+  );
+
+  let new_user_querryname = { username: req.body.usertoFollow };
+  let new_user_optionname = { projection: { _id: 0, username: 1 } };
+  let usertoFollowname = await users.findOne(
+    new_user_querryname,
+    new_user_optionname
+  );
+
+  if (userfollowing) {
+    let count = 0;
+    let usertoFollow_id = usertoFollowId._id.toString();
+    let exist = 0;
+
+    for (let i in userfollowing.follow) {
+      if (userfollowing.follow[count].followingId == usertoFollow_id) {
+        exist = 1;
+        updated = "You alredy follow this person!";
+      }
+      count++;
+    }
+
+    if (usertoFollow_id && !exist) {
+      let following = userfollowing.follow;
+      following[count] = {
+        followingId: usertoFollow_id,
+        followingName: usertoFollowname.username,
+      };
+
+      const updateTable = {
+        $set: {
+          follow: following,
+        },
+      };
+
+      const update = await users.updateOne(user_querry, updateTable);
+      updated = "Ok";
+    } else {
+      console.log("Existing");
+      updated = "Existing";
+    }
+  } else updated = "error";
+
+  res.status(201);
+  res.send(updated);
 });
 
 //Login
