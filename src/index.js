@@ -202,7 +202,6 @@ app.get("/users/:id", [authentification.verify], async (req, res) => {
     .collection("Users")
     .findOne({ _id: mongo.ObjectId(id) });
 
-  results.follow.shift();
   res.json(results);
 });
 
