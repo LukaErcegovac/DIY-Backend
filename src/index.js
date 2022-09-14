@@ -116,11 +116,12 @@ app.delete("/posts/:id", [authentification.verify], async (req, res) => {
   let db = await connect();
 
   let result = await db
-    .collection("Posts", "Comments")
-    .deleteOne(
-      { _id: mongo.ObjectId(id), postId: mongo.ObjectId(id) },
-      { $set: data }
-    );
+    .collection("Posts")
+    .deleteOne({ _id: mongo.ObjectId(id) }, { $set: data });
+
+  let response = await db
+    .collection("Comments")
+    .deleteMany({ postId: mongo.ObjectId(id) }, { $set: data });
 
   if (result && result.deletedCount == 1) {
     res.json({ status: "Deleted" });
